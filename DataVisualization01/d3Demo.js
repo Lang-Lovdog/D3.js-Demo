@@ -1,7 +1,7 @@
 d3.select("div").style("color","white").style("text-shadow","0 0 1px black, 0 0 1.4px black, 0 0 1.6px black, 0 0 1.8px black,0 0 1.10px black")
 d3.select("div").style("background-image","linear-gradient(20deg, gray,black)");
 d3.select("body").style("background-color","black").style("color","white");
-/*
+
 var svg = d3.select('div').append('svg');
 svg
   .append('circle')
@@ -9,7 +9,7 @@ svg
   .attr('cy', '50%')
   .attr('r', 20)
   .style('fill', 'url(#NegroBlanco)');
-svg
+/*svg
   .append('square')
   .attr('cx','20%')
   .attr('cy','20%')
@@ -112,6 +112,7 @@ const frecuencia = (Arreglo,Key)=>{
     histArray[item]+=1;
   })
   //console.log(histArray);
+  console.log(histArray)
   return histArray;
 }
 
