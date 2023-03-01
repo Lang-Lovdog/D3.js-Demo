@@ -1,25 +1,63 @@
 const elArchivo = document.getElementById('elArchivo');
 
+// int main () {
+elArchivo.addEventListener( "change", ()=>{
+    recarga(elArchivo.files[0]['name']);
+});
+// return 0;
+// }
+
+
+//<-------------------------------------->
+
+
 const recarga = function(elArchivo){
   var laData= new Array();
   d3.csv(elArchivo,d=>{
     laData.push(d);
   }).then(()=>{
 
+    DefineNull(laData,"?","workclass","Private");
+    const freq_ednum=frecuencia(laData,"education.num");
     const freq_edad=frecuencia(laData,"age");
+    const freq_income=frecuencia(laData,"income");
     const freq_workclass=frecuencia(laData,"workclass");
-    histogram_freq(freq_edad,"#EdadesOrig","Edades",[1,0,0]);
-    histogram_freq(freq_workclass,"#WorkClassOrig","WorkClass",[0,1,0],true);
+    histogram_freq(freq_ednum,"#NumEducativo","AñosDeEstudio",[100,100,100],[100,100,200],true);
+    histogram_freq(freq_income,"#ElIncome","Ingresos (Sueldo)",[20,100,100],[100,250,120],true);
+    histogram_freq(freq_edad,"#EdadesOrig","Edades",[0,150,150],[0,230,255]);
+    histogram_freq(freq_workclass,"#WorkClassOrig","WorkClass",[200,1,220],[201,0,230],true);
     //console.log(Object.keys(laData['0']))
   });
 }
 
-elArchivo.addEventListener( "change", ()=>{
-    recarga(elArchivo.files[0]['name']);
-});
+const DefineNull = (Arreglo,ClaveDeNull,Key,NewValue)=>{
+  Arreglo.map(item=>{
+    if(item[Key]==null || item[Key]==undefined || item[Key]==ClaveDeNull){
+      item[Key]=NewValue;
+    }
+  })
+}
+
+const frecuencia = (Arreglo,Key)=>{
+  aux_array=[];
+  Arreglo.forEach(item=>{
+    aux_array.push(item[Key]);
+  })
+  //console.log(aux_array);
+  
+  var histArray= new Object;
+  aux_array.forEach(item=>{
+    histArray[item]=0;
+  })
+  aux_array.forEach(item=>{
+    histArray[item]+=1;
+  })
+  console.log(histArray)
+  return histArray;
+}
 
 
-const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorConstante=[0,0,0],porcentual=false)=>{
+const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],ColorIniv=[255,255,255],porcentual=false)=>{
   var proporcion;
   const maxValue=Object.values(tabla_frequencias);
   console.log(maxValue);
@@ -45,6 +83,7 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorConstante=[0,0,0],
   leDivTitulo=leDiv+"Titulo";
   leDivCuerpo=leDiv+"Cuerpo";
   leDivEtique=leDiv+"Etique";
+  leDivValuee=leDiv+"Valuee";
   //Object.keys(tabla_frequencias).map(elemento=>{
     //console.log(elemento);
     //console.log(tabla_frequencias[elemento]);
@@ -62,6 +101,11 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorConstante=[0,0,0],
   // Le asignamos un valor al contenido
     .text(leTitle)
     .attr("id",leDivTitulo);
+
+
+  d3.select(leDiv)
+    .append("div")
+    .attr("id",leDivValuee.slice(1));
 
   d3.select(leDiv)
     .append("div")
@@ -84,6 +128,41 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorConstante=[0,0,0],
     .style("flex-direction","row")
     .style("max-height","20px");
 
+  d3.select(leDivValuee)
+    .style("height","350px")
+    .style("display","flex")
+    .style("flex-direction","row")
+    .style("max-height","20px");
+
+
+  d3.select(leDivValuee)
+  // Operará sobre todos los div que existan en el contenedor
+  // Así, cada nuevo div creado se volverá el nuevo elemento
+  // operando.
+    .selectAll("div")
+  // Le decimos cuales serán los datos objetivos que se usarán
+  // dentro de las siguientes definiciones.
+    .data(Clases)
+  // Le damos indicio de que será una entrada de datos que
+  // deberá asignar a cada nuevo elemento creado.
+    .enter()
+  // Añaimos un elemento div para crear la barra del
+  // histograma
+    .append("div")
+    .style("margin",'2px')
+    .style('width','40px')
+    .style('height','20px')
+  // Se agrega el texto de interés]
+  // en este caso, el valor de la variable
+    .text(d=>{
+      return tabla_frequencias[d];
+    })
+    .style("text-align","center")
+    .style("display","inline-block")
+    .style("font-size","10px")
+    .style("background-color","black")
+    .style("color","white");
+
   // Le decimos sobre qué elemento vamos a operar.
   d3.select(leDivCuerpo)
   // Operará sobre todos los div que existan en el contenedor
@@ -102,24 +181,9 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorConstante=[0,0,0],
   // Le damos forma y color
     .style(
       "background-color",()=>{
-        if(ColorConstante[0]){
-          lRed=ColorConstante[0];
-        }
-        else{
-          lRed=d3.randomUniform(125,255)();
-        }
-        if(ColorConstante[1]){
-          lGre=ColorConstante[1];
-        }
-        else{
-          lGre=d3.randomUniform(125,255)();
-        }
-        if(ColorConstante[2]){
-          lBlu=ColorConstante[2];
-        }
-        else{
-          lBlu=d3.randomUniform(125,255)();
-        }
+      lRed=d3.randomUniform(ColorInit[0],ColorIniv[0])();
+      lGre=d3.randomUniform(ColorInit[1],ColorIniv[1])();
+      lBlu=d3.randomUniform(ColorInit[2],ColorIniv[2])();
       return 'rgb('+lRed+','+lGre+','+lBlu+')'
       })
     .style("margin",'2px')
@@ -130,7 +194,6 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorConstante=[0,0,0],
     })
     .style("display","inline-block")
     .style("align-self","flex-end");
-
 
   d3.select(leDivEtique)
   // Operará sobre todos los div que existan en el contenedor
@@ -159,20 +222,3 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorConstante=[0,0,0],
     .style("font-size","10px");
 }
 
-const frecuencia = (Arreglo,Key)=>{
-  aux_array=[];
-  Arreglo.forEach(item=>{
-    aux_array.push(item[Key]);
-  })
-  //console.log(aux_array);
-  
-  var histArray= new Object;
-  aux_array.forEach(item=>{
-    histArray[item]=0;
-  })
-  aux_array.forEach(item=>{
-    histArray[item]+=1;
-  })
-  console.log(histArray)
-  return histArray;
-}
