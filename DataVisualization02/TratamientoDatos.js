@@ -26,7 +26,7 @@ const recarga = function(elArchivo){
     histogram_freq(freq_income,"#ElIncome","Ingresos (Sueldo)",[20,100,100],[100,250,120],true);
     histogram_freq(freq_edad,"#EdadesOrig","Edades",[0,150,150],[0,230,255]);
     histogram_freq(freq_workclass,"#WorkClassOrig","WorkClass",[200,1,220],[201,0,230],true);
-    ScatterPlot(laData,"age","hours.per.week","Relación de edad y Horas de trabajo");
+    ScatterPlot(laData,"#scatterplot","age","hours.per.week","Relación de edad y Horas de trabajo");
     //console.log(Object.keys(laData['0']))
   });
 }
@@ -234,11 +234,15 @@ const ScatterPlot = (LosDatos,leDiv,ValorKeyX,ValorKeyY,Titulo)=>{
     ]
   }) Para la posteridad*/
 
+  const LeSctatterPlotain=d3.select(leDiv)
+    .append("svg")
+    .append("g");
+
   // Add X axis
   var x = d3.scaleLinear()
     .domain([0, 4000])
     .range([ 0, "300px" ]);
-  svg.append("g")
+  LeSctatterPlotain.append("g")
     .attr("transform", "translate(0,300px)")
     .call(d3.axisBottom(x));
 
@@ -246,20 +250,16 @@ const ScatterPlot = (LosDatos,leDiv,ValorKeyX,ValorKeyY,Titulo)=>{
   var y = d3.scaleLinear()
     .domain([0, 500000])
     .range([ "300px", 0]);
-  svg.append("g")
+  LeSctatterPlotain.append("g")
     .call(d3.axisLeft(y))
   
-  const LeSctatterPlotain=d3.select(leDiv)
-    .append("svg")
-    .append("g");
-
   LeSctatterPlotain.append('g')
     .selectAll("dot")
     .data(LosDatos)
     .enter()
     .append("circle")
-      .attr("cx", function (d) { return x(d.ValorKeyX); } )
-      .attr("cy", function (d) { return y(d.ValorKeyY); } )
+      .attr("cx", function (d) { return x(d[ ValorKeyX ]); } )
+      .attr("cy", function (d) { return y(d[ ValorKeyY ]); } )
       .attr("r","1.5px")
       .style("fill", "#69b3a2");
 }
