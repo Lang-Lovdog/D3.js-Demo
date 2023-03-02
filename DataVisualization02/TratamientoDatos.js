@@ -1,3 +1,4 @@
+import { linearRegression } from 'd3-regression';
 const elArchivo = document.getElementById('elArchivo');
 
 // int main () {
