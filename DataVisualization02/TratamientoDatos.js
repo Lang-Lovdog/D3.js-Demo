@@ -26,6 +26,7 @@ const recarga = function(elArchivo){
     histogram_freq(freq_income,"#ElIncome","Ingresos (Sueldo)",[20,100,100],[100,250,120],true);
     histogram_freq(freq_edad,"#EdadesOrig","Edades",[0,150,150],[0,230,255]);
     histogram_freq(freq_workclass,"#WorkClassOrig","WorkClass",[200,1,220],[201,0,230],true);
+    ScatterPlot(laData,"age","hours.per.week","Relación de edad y Horas de trabajo");
     //console.log(Object.keys(laData['0']))
   });
 }
@@ -79,6 +80,9 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
       proporcion=1;
     }
   console.log(proporcion);
+  WidTh=100/Object.keys(tabla_frequencias).length;
+  console.log(Object.keys(tabla_frequencias).length);
+  console.log(WidTh);
 
   leDivTitulo=leDiv+"Titulo";
   leDivCuerpo=leDiv+"Cuerpo";
@@ -150,7 +154,7 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
   // histograma
     .append("div")
     .style("margin",'2px')
-    .style('width','40px')
+    .style('width',WidTh+'%')
     .style('height','20px')
   // Se agrega el texto de interés]
   // en este caso, el valor de la variable
@@ -187,7 +191,7 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
       return 'rgb('+lRed+','+lGre+','+lBlu+')'
       })
     .style("margin",'2px')
-    .style('width','40px')
+    .style('width',WidTh+'%')
   // En esta parte, el ancho se relaciona al valor de interés
     .style('height',d=>{
       return (tabla_frequencias[d]*proporcion) + "%";
@@ -210,7 +214,7 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
   // histograma
     .append("div")
     .style("margin",'2px')
-    .style('width','40px')
+    .style('width',WidTh+'%')
     .style('height','20px')
   // Se agrega el texto de interés]
   // en este caso, el valor de la variable
@@ -222,3 +226,11 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
     .style("font-size","10px");
 }
 
+const ScatterPlot = (LosDatos,ValorKeyX,ValorKeyY,Titulo)=>{
+  Plot.plot({
+    marks: [
+      Plot.dot(LosDatos, {x: ValorKeyX, y: ValorKeyY}),
+      Plot.text(LosDatos, {text: Titulo, x: ValorKeyX, y: ValorKeyY, dy: -8})
+    ]
+  })
+}
