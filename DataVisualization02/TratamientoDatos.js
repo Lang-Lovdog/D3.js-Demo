@@ -226,11 +226,40 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
     .style("font-size","10px");
 }
 
-const ScatterPlot = (LosDatos,ValorKeyX,ValorKeyY,Titulo)=>{
-  Plot.plot({
+const ScatterPlot = (LosDatos,leDiv,ValorKeyX,ValorKeyY,Titulo)=>{
+  /*Plot.plot({
     marks: [
       Plot.dot(LosDatos, {x: ValorKeyX, y: ValorKeyY}),
       Plot.text(LosDatos, {text: Titulo, x: ValorKeyX, y: ValorKeyY, dy: -8})
     ]
-  })
+  }) Para la posteridad*/
+
+  // Add X axis
+  var x = d3.scaleLinear()
+    .domain([0, 4000])
+    .range([ 0, "300px" ]);
+  svg.append("g")
+    .attr("transform", "translate(0,300px)")
+    .call(d3.axisBottom(x));
+
+  // Add Y axis
+  var y = d3.scaleLinear()
+    .domain([0, 500000])
+    .range([ "300px", 0]);
+  svg.append("g")
+    .call(d3.axisLeft(y))
+  
+  const LeSctatterPlotain=d3.select(leDiv)
+    .append("svg")
+    .append("g");
+
+  LeSctatterPlotain.append('g')
+    .selectAll("dot")
+    .data(LosDatos)
+    .enter()
+    .append("circle")
+      .attr("cx", function (d) { return x(d.ValorKeyX); } )
+      .attr("cy", function (d) { return y(d.ValorKeyY); } )
+      .attr("r","1.5px")
+      .style("fill", "#69b3a2");
 }
