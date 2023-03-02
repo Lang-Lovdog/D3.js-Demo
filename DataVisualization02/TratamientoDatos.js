@@ -1,4 +1,4 @@
-import { linearRegression } from 'd3-regression';
+import { saveAs } from '../../../../../node_modules/file-saver';
 const elArchivo = document.getElementById('elArchivo');
 
 // int main () {
@@ -37,7 +37,10 @@ const recarga = function(elArchivo){
     NoLeGustanMayores=ArregloFactum(laData,"income","0");
     ScatterPlot(LeGustanMayores,"#RelacionEducEdadMay","education_num",'age');
     ScatterPlot(NoLeGustanMayores,"#RelacionEducEdadNMay","education_num",'age');
-    RegresionLineal(LeGustanMayores,"#RegresionEducEdadMay","education_num","age");
+
+    var blob = new Blob([JSON.stringify(LeGustanMayores)], {type: "text/plain;charset=utf-8"});  
+    saveAs(blob, "Mayores.JSON");   
+    //RegresionLineal(LeGustanMayores,"#RegresionEducEdadMay","education_num","age");
     //console.log(Object.keys(laData['0']))
   });
 }
@@ -47,7 +50,7 @@ const RegresionLineal = (LosDatos,leDiv,ValorKeyX,ValorKeyY)=>{
   const ValoresY=ArregloKey(LosDatos,ValorKeyY);
   var MaxX=d3.max(ValoresX)+1;
   var MaxY=d3.max(ValoresY)+1;
-  const Regresion = linearRegression(LosDatos,ValorKeyX,ValorKeyY)
+  const Regresion = regresson.linearRegression(LosDatos,ValorKeyX,ValorKeyY)
     .x(d => d[ValorKeyX])
     .y(d => d[ValorKeyY])
     .domain([0, MaxX>MaxY?MaxY:MaxX]);
