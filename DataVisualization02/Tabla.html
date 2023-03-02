@@ -5,18 +5,30 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">  <meta http-equiv="X-UA-Compatible" content="IE=edge">  <title></title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://cdn.plot.ly/plot-2.0.0.min.js"></script>
+  <script>
+    import { linearRegression } from 'd3-regression';
+  </script>
 </head>
 <body>
   <input type="file" id="elArchivo">
-  <div id="demoProfe"></div>
+  <!--div id="demoProfe"></div>
   <div id="demoProfe0"></div>
-  <div id="demoProfe1"></div>
+  <div id="demoProfe1"></div-->
   <div id="ElIncome"></div>
   <div id="NumEducativo"></div>
   <div id="EdadesOrig"></div>
-  <div id="WorkClassOrig"></div>
-  <div id="scatterplot"></div>
+  <h4>Relación Ingresos respecto a Edad</h4>
+  <div id="RelacionEdadIncome"></div>
+  <h4>Relación Ingresos respecto a Años d'estuio</h4>
+  <div id="RelacionEducIncome"></div>
+  <h4>Relación Años d'esstudio respecto a Edad</h4>
+  <div id="RelacionEducEdad"></div>
+  <h4>Relación Años d'esstudio respecto a Edad <br> Con ingresos mayores a 50K</h4>
+  <div id="RelacionEducEdadMay"></div>
+  <h4>Relación Años d'esstudio respecto a Edad <br> Con ingresos no mayores a 50K</h4>
+  <div id="RelacionEducEdadNMay"></div>
+  <h4>Regresión de los datos</h4>
+  <div id="RegresionEducEdadMay"></div>
   <script src="TratamientoDatos.js"></script>
 </body>
 </html>

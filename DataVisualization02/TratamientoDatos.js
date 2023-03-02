@@ -17,24 +17,81 @@ const recarga = function(elArchivo){
     laData.push(d);
   }).then(()=>{
 
-
-    GraficaHistogramaKey(laData,"bus_ter","#demoProfe",true);
+    /*GraficaHistogramaKey(laData,"bus_ter","#demoProfe",true);
     GraficaHistogramaKey(laData,"crime_rate","#demoProfe0",true);
     GraficaHistogramaKey(laData,"price","#demoProfe1",true);
     ScatterPlot(laData,"#scatterplot","crime_rate","price");
     ScatterPlot(laData,"#scatterplot","price","crime_rate");
-    DefineNull(laData,"?","workclass","Private");
-    /*const freq_ednum=frecuencia(laData,"education_num");
-    const freq_edad=frecuencia(laData,"age");
-    const freq_income=frecuencia(laData,"income");
-    const freq_workclass=frecuencia(laData,"workclass");
-    histogram_freq(freq_ednum,"#NumEducativo","AñosDeEstudio",[100,100,100],[100,100,200],true);
-    histogram_freq(freq_income,"#ElIncome","Ingresos (Sueldo)",[20,100,100],[100,250,120],true);
-    histogram_freq(freq_edad,"#EdadesOrig","Edades",[0,150,150],[0,230,255]);
-    histogram_freq(freq_workclass,"#WorkClassOrig","WorkClass",[200,1,220],[201,0,230],true);
-    ScatterPlot(laData,"#scatterplot","age",'education_num',"Relación de edad y Horas de trabajo");*/
+    DefineNull(laData,"?","workclass","Private");*/
+    DefineNull(laData,"<=50K","income","0");
+    DefineNull(laData,">50K","income","1");
+    GraficaHistogramaKey(laData,"education_num","#NumEducativo",true)
+    GraficaHistogramaKey(laData,"income","#ElIncome",true)
+    GraficaHistogramaKey(laData,"age","#EdadesOrig",true)
+    ScatterPlot(laData,"#RelacionEdadIncome","age",'income');
+    ScatterPlot(laData,"#RelacionEducIncome","education_num",'income');
+    ScatterPlot(laData,"#RelacionEducEdad","education_num",'age');
+
+    LeGustanMayores=ArregloFactum(laData,"income","1");
+    NoLeGustanMayores=ArregloFactum(laData,"income","0");
+    ScatterPlot(LeGustanMayores,"#RelacionEducEdadMay","education_num",'age');
+    ScatterPlot(NoLeGustanMayores,"#RelacionEducEdadNMay","education_num",'age');
+    RegresionLineal(LeGustanMayores,"#RegresionEducEdadMay","education_num","age");
     //console.log(Object.keys(laData['0']))
   });
+}
+
+const RegresionLineal = (LosDatos,leDiv,ValorKeyX,ValorKeyY)=>{
+  const ValoresX=ArregloKey(LosDatos,ValorKeyX);
+  const ValoresY=ArregloKey(LosDatos,ValorKeyY);
+  var MaxX=d3.max(ValoresX)+1;
+  var MaxY=d3.max(ValoresY)+1;
+  const Regresion = linearRegression(LosDatos,ValorKeyX,ValorKeyY)
+    .x(d => d[ValorKeyX])
+    .y(d => d[ValorKeyY])
+    .domain([0, MaxX>MaxY?MaxY:MaxX]);
+  console.log(Regresion);
+  // Configurar el tamaño y los márgenes del gráfico
+  const width = 500;
+  const height = 300;
+  const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+   
+  // Crear la escala x
+  const xScale = d3.scaleLinear()
+    .domain(d3.extent(LosDatos, d => d.x))
+    .range([0, innerWidth]);
+   
+  // Crear la escala y
+  const yScale = d3.scaleLinear()
+    .domain(d3.extent(LosDatos, d => d.y))
+    .range([innerHeight, 0]);
+   
+  // Crear el gráfico
+  const svg = d3.select(leDiv).append("svg")
+    .attr("width", width)
+    .attr("height", height);
+   
+  // Crear el grupo de gráficos
+  const g = svg.append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+   
+  // Agregar los puntos de datos al gráfico
+  g.selectAll("circle")
+    .data(LosDatos)
+    .enter().append("circle")
+    .attr("cx", d => xScale(d.x))
+    .attr("cy", d => yScale(d.y))
+    .attr("r", 5);
+   
+  // Agregar la línea de regresión al gráfico
+  g.append("line")
+    .attr("class", "regression-line")
+    .attr("x1", xScale(Regresion.domain()[0]))
+    .attr("y1", yScale(Regresion.range()[0]))
+    .attr("x2", xScale(Regresion.domain()[1]))
+    .attr("y2", yScale(Regresion.range()[1]));
 }
 
 const DefineNull = (Arreglo,ClaveDeNull,Key,NewValue)=>{
@@ -49,6 +106,17 @@ const ArregloKey = (Arreglo,Key)=>{
   var ArregloSalida=new Array();
   Arreglo.map(item=>{
     ArregloSalida.push(parseFloat(item[Key]));
+  })
+  console.log(ArregloSalida);
+  return ArregloSalida;
+}
+
+const ArregloFactum = (Arreglo,Key,Factum)=>{
+  var ArregloSalida=new Array();
+  Arreglo.map(item=>{
+    if(item[Key]==Factum){ 
+      ArregloSalida.push(item);
+    }
   })
   console.log(ArregloSalida);
   return ArregloSalida;
