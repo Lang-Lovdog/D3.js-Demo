@@ -1,4 +1,3 @@
-import { saveAs } from '../../../../../node_modules/file-saver';
 const elArchivo = document.getElementById('elArchivo');
 
 // int main () {
@@ -24,28 +23,44 @@ const recarga = function(elArchivo){
     ScatterPlot(laData,"#scatterplot","crime_rate","price");
     ScatterPlot(laData,"#scatterplot","price","crime_rate");
     DefineNull(laData,"?","workclass","Private");*/
-    DefineNull(laData,"<=50K","income","0");
-    DefineNull(laData,">50K","income","1");
     GraficaHistogramaKey(laData,"education_num","#NumEducativo",true)
     GraficaHistogramaKey(laData,"income","#ElIncome",true)
     GraficaHistogramaKey(laData,"age","#EdadesOrig",true)
+    DefineNull(laData,"<=50K","income","0");
+    DefineNull(laData,">50K","income","1");
     ScatterPlot(laData,"#RelacionEdadIncome","age",'income');
     ScatterPlot(laData,"#RelacionEducIncome","education_num",'income');
     ScatterPlot(laData,"#RelacionEducEdad","education_num",'age');
 
-    LeGustanMayores=ArregloFactum(laData,"income","1");
-    NoLeGustanMayores=ArregloFactum(laData,"income","0");
+    var LeGustanMayores=ArregloFactum(laData,"income","1");
+    var NoLeGustanMayores=ArregloFactum(laData,"income","0");
     ScatterPlot(LeGustanMayores,"#RelacionEducEdadMay","education_num",'age');
     ScatterPlot(NoLeGustanMayores,"#RelacionEducEdadNMay","education_num",'age');
+    RegLin(LeGustanMayores,"#RegresionEducEdadMay","age","education_num");
 
-    var blob = new Blob([JSON.stringify(LeGustanMayores)], {type: "text/plain;charset=utf-8"});  
-    saveAs(blob, "Mayores.JSON");   
     //RegresionLineal(LeGustanMayores,"#RegresionEducEdadMay","education_num","age");
     //console.log(Object.keys(laData['0']))
   });
 }
 
-const RegresionLineal = (LosDatos,leDiv,ValorKeyX,ValorKeyY)=>{
+const RegLin = (LosDatos,leDiv,LaKeyX,LaKeyY)=>{
+  var laVX=0;
+  var alfa=5;
+  var beta=10;
+  LosDatos.map(item=>{
+    laVX+= parseFloat(item[LaKeyX]);
+  });
+  ScatterPlot(LosDatos,leDiv,LaKeyX,LaKeyY)
+    .append('line')
+    .style("stroke", "lightgreen")
+    .style("stroke-width", 10)
+    .attr("x1", x(0))
+    .attr("y1", y(0))
+    .attr("x2", x(laVX))
+    .attr("y2", y(alfa+(beta*laVX)));
+}
+
+/*const RegresionLineal = (LosDatos,leDiv,ValorKeyX,ValorKeyY)=>{
   const ValoresX=ArregloKey(LosDatos,ValorKeyX);
   const ValoresY=ArregloKey(LosDatos,ValorKeyY);
   var MaxX=d3.max(ValoresX)+1;
@@ -96,7 +111,7 @@ const RegresionLineal = (LosDatos,leDiv,ValorKeyX,ValorKeyY)=>{
     .attr("y1", yScale(Regresion.range()[0]))
     .attr("x2", xScale(Regresion.domain()[1]))
     .attr("y2", yScale(Regresion.range()[1]));
-}
+}*/
 
 const DefineNull = (Arreglo,ClaveDeNull,Key,NewValue)=>{
   Arreglo.map(item=>{
@@ -132,7 +147,7 @@ const GraficaHistogramaKey = (LosDatos, LaKey,LeDiv,Porcentual=false)=>{
 }
 
 const frecuencia = (Arreglo,Key)=>{
-  aux_array=[];
+  var aux_array=new Array();
   Arreglo.forEach(item=>{
     aux_array.push(item[Key]);
   })
@@ -154,7 +169,7 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
   var proporcion;
   const maxValue=Object.values(tabla_frequencias);
   //console.log(maxValue);
-  i=d3.max(maxValue);
+  var i=d3.max(maxValue);
     //console.log(i);
     if(porcentual){
       proporcion=100/i;
@@ -172,14 +187,14 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
       proporcion=1;
     }
   //console.log(proporcion);
-  WidTh=100/Object.keys(tabla_frequencias).length;
+  var WidTh=100/Object.keys(tabla_frequencias).length;
   //console.log(Object.keys(tabla_frequencias).length);
   //console.log(WidTh);
 
-  leDivTitulo=leDiv+"Titulo";
-  leDivCuerpo=leDiv+"Cuerpo";
-  leDivEtique=leDiv+"Etique";
-  leDivValuee=leDiv+"Valuee";
+  var leDivTitulo=leDiv+"Titulo";
+  var leDivCuerpo=leDiv+"Cuerpo";
+  var leDivEtique=leDiv+"Etique";
+  var leDivValuee=leDiv+"Valuee";
   //Object.keys(tabla_frequencias).map(elemento=>{
     //console.log(elemento);
     //console.log(tabla_frequencias[elemento]);
@@ -264,7 +279,7 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
   // Operará sobre todos los div que existan en el contenedor
   // Así, cada nuevo div creado se volverá el nuevo elemento
   // operando.
-    .selectAll("div")
+    .selectAll("a")
   // Le decimos cuales serán los datos objetivos que se usarán
   // dentro de las siguientes definiciones.
     .data(Clases)
@@ -273,13 +288,21 @@ const histogram_freq = (tabla_frequencias,leDiv,leTitle, ColorInit=[0,0,0],Color
     .enter()
   // Añaimos un elemento div para crear la barra del
   // histograma
-    .append("div")
+    .append("a")
+    .attr("href","#")
+    .attr("class","inline-block")
+    .attr("data-bs-toggle","tooltip")
+    .attr("data-bs-placement","top")
+    .attr("title",d=>{
+        return tabla_frequencias[d];
+      })
+  //  .append("div")
   // Le damos forma y color
     .style(
       "background-color",()=>{
-      lRed=d3.randomUniform(ColorInit[0],ColorIniv[0])();
-      lGre=d3.randomUniform(ColorInit[1],ColorIniv[1])();
-      lBlu=d3.randomUniform(ColorInit[2],ColorIniv[2])();
+      var lRed=d3.randomUniform(ColorInit[0],ColorIniv[0])();
+      var lGre=d3.randomUniform(ColorInit[1],ColorIniv[1])();
+      var lBlu=d3.randomUniform(ColorInit[2],ColorIniv[2])();
       return 'rgb('+lRed+','+lGre+','+lBlu+')'
       })
     .style("margin",'.1px')
@@ -331,7 +354,7 @@ const ScatterPlot = (LosDatos,leDiv,ValorKeyX,ValorKeyY,Titulo)=>{
     height = 400 - margin.top - margin.bottom;
 
 
-  laTablaId=leDiv+"Tabla";
+  var laTablaId=leDiv+"Tabla";
   d3.select(leDiv)
     .append("table")
     .attr("id",laTablaId.slice(1))
@@ -372,8 +395,8 @@ const ScatterPlot = (LosDatos,leDiv,ValorKeyX,ValorKeyY,Titulo)=>{
     .domain([0, MaxY])
     .range([ height, 0]);
 
-  IdX=leDiv+"labelX";
-  IdY=leDiv+"labelY";
+  var IdX=leDiv+"labelX";
+  var IdY=leDiv+"labelY";
 
   LeSctatterPlotain.append("g")
     .attr("id",IdX.slice(1))
@@ -392,15 +415,23 @@ const ScatterPlot = (LosDatos,leDiv,ValorKeyX,ValorKeyY,Titulo)=>{
     .text("income per capita, inflation-adjusted (dollars)");
 
 // Add dots
-  LeSctatterPlotain.append('g')
+  var GraphArea=LeSctatterPlotain.append('g')
+  GraphArea
     .selectAll("dot")
     .data(LosDatos)
     .enter()
     .append("circle")
       .attr("cx", function (d) { return x(d[ValorKeyX]); } )
       .attr("cy", function (d) { return y(d[ValorKeyY]); } )
-      .attr("r", 1.5)
-      .style("fill", "#660000")
+      .attr("r", 3)
+      .style("fill", "#44000070")
+    .on("mouseover",d=>{
+      Tooltip
+        .style("opacity",1)
+        .style("left", (d3.mouse(this)[0]+70) + "px")
+        .style("top", (d3.mouse(this)[1]) + "px")
+        .html("H")
+    })
 
   const elLastTR=d3.select(laTablaId)
     .append("tr")
@@ -410,4 +441,28 @@ const ScatterPlot = (LosDatos,leDiv,ValorKeyX,ValorKeyY,Titulo)=>{
     .append("td")
     .style("text-align","center")
     .text(ValorKeyX);
+
+  return GraphArea;
 }
+
+/*/ Three function that change the tooltip when user hover / move / leave a cell
+  var mouseover = function(d) {
+    Tooltip
+      .style("opacity", 1)
+    d3.select(this)
+      .style("stroke", "black")
+      .style("opacity", 1)
+  }
+  var mousemove = function(d) {
+    Tooltip
+      .html(d.value)
+      .style("left", (d3.mouse(this)[0]+70) + "px")
+      .style("top", (d3.mouse(this)[1]) + "px")
+  }
+  var mouseleave = function(d) {
+    Tooltip
+      .style("opacity", 0)
+    d3.select(this)
+      .style("stroke", "none")
+      .style("opacity", 0.8)
+  }*/
