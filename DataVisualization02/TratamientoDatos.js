@@ -47,6 +47,33 @@ const RegLin = (LosDatos,leDiv,LaKeyX,LaKeyY)=>{
   var laVX=0;
   var alfa=5;
   var beta=10;
+  
+  // Calcular los coeficientes de regresión
+  var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, n = LosDatos.length;
+  LosDatos.forEach(function(d) {
+    sumX += parseFloat(d[LaKeyX]);
+    sumY += parseFloat(d[LaKeyY]);
+    sumXY += parseFloat(d[LaKeyX]) * parseFloat(d[LaKeyY]);
+    sumX2 += parseFloat(d[LaKeyX]) * parseFloat(d[LaKeyX]);
+  });
+  beta = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+  alfa = (sumY / n) - beta * (sumX / n);
+  
+  ScatterPlot(LosDatos,leDiv,LaKeyX,LaKeyY)
+    .append('line')
+    .style("stroke", "lightgreen")
+    .style("stroke-width", 2)
+    .attr("x1", x(d3.min(LosDatos, function(d) { return d[LaKeyX]; })))
+    .attr("y1", y(alfa + beta * d3.min(LosDatos, function(d) { return d[LaKeyX]; })))
+    .attr("x2", x(d3.max(LosDatos, function(d) { return d[LaKeyX]; })))
+    .attr("y2", y(alfa + beta * d3.max(LosDatos, function(d) { return d[LaKeyX]; })));
+}
+
+
+/*const RegLin = (LosDatos,leDiv,LaKeyX,LaKeyY)=>{
+  var laVX=0;
+  var alfa=5;
+  var beta=10;
   LosDatos.map(item=>{
     laVX+= parseFloat(item[LaKeyX]);
   });
@@ -58,7 +85,7 @@ const RegLin = (LosDatos,leDiv,LaKeyX,LaKeyY)=>{
     .attr("y1", y(0))
     .attr("x2", x(laVX))
     .attr("y2", y(alfa+(beta*laVX)));
-}
+}*/
 
 /*const RegresionLineal = (LosDatos,leDiv,ValorKeyX,ValorKeyY)=>{
   const ValoresX=ArregloKey(LosDatos,ValorKeyX);
